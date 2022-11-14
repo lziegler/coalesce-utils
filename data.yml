@@ -310,10 +310,6 @@ stepTypes:
 
         - groupName: Change Tracking Options
           items:
-          - displayName: Propagate Last Non-Delete
-            attributeName: propNonDelete
-            type: toggleButton
-            default: false
 
           - displayName: Table Key Column(s)
             attributeName: tblKey
@@ -325,28 +321,23 @@ stepTypes:
             type: columnSelector
             isRequired: true
 
+          - displayName: Propagate Last Non-Delete
+            attributeName: propNonDelete
+            type: toggleButton
+            default: false
+
           - displayName: DML Identifier Column
             attributeName: colDML
             type: columnSelector
-            isRequired: true
-
-          - displayName: DML Insert Indentifier
-            attributeName: dmlInsert
-            type: textBox
-            default: 'I'
-            isRequired: true
-         
-          - displayName: DML Update Indentifier
-            attributeName: dmlUpdate
-            type: textBox
-            default: 'U'
-            isRequired: true
+            isRequired: false
+            enableIf: "{{ config.propNonDelete }}"
          
           - displayName: DML Delete Indentifier
             attributeName: dmlDelete
             type: textBox
             default: 'D'
-            isRequired: true
+            isRequired: false
+            enableIf: "{{ config.propNonDelete }}" 
          
         - groupName: Other Options
           items:
@@ -411,15 +402,14 @@ stepTypes:
                             {% if config.propNonDelete == false %}
                                 {{ colVal }} as {{ col }}
                             {% else %}
-                                case when "{{ tblColDMLStr }}" = '{{tblColDMLDelete}}' then lead({{colVal}}) over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" desc) else {{colVal}} end as {{ col }}
+                                CASE WHEN "{{ tblColDMLStr }}" = '{{tblColDMLDelete}}' THEN lead({{colVal}}) over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" desc) ELSE {{colVal}} END as {{ col }}
                             {% endif %}
                             ,
                         {% endfor %}
 
                         {{ tblChgTSColStr }} as "START_TIME",
                         lag("{{ tblChgTSColStr }}") over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" desc) as "END_TIME",
-                        case when (row_number() over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" desc) = 1) then 1 else 0 end as "CURRENT_FLAG",
-                        "{{ tblColDMLStr }}" as "LAST_DML_OPERATION"
+                        CASE WHEN (row_number() over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" desc) = 1) THEN 1 ELSE 0 END as "CURRENT_FLAG"
 
                         {{ sources[0].join }}
 
@@ -445,8 +435,7 @@ stepTypes:
 
                         "START_TIME",
                         "END_TIME",
-                        "CURRENT_FLAG",
-                        "LAST_DML_OPERATION"
+                        "CURRENT_FLAG"
                     )
                     {%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}
 
@@ -465,8 +454,7 @@ stepTypes:
 
                         {{ tblChgTSColStr }} as "START_TIME",
                         lag("{{ tblChgTSColStr }}") over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" desc) as "END_TIME",
-                        case when (row_number() over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" desc) = 1) then 1 else 0 end as "CURRENT_FLAG",
-                        "{{ tblColDMLStr }}" as "LAST_DML_OPERATION"
+                        CASE WHEN (row_number() over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" desc) = 1) THEN 1 ELSE 0 END as "CURRENT_FLAG"
 
                         {{ sources[0].join }}
 

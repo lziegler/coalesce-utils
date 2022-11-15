@@ -2,11 +2,15 @@ defaultStorageMapping: SRC
 jobs: {}
 locations:
   SRC:
-    mappingDefinitions: {}
-  STAGE:
-    mappingDefinitions: {}
-  TEST:
-    mappingDefinitions: {}
+    mappingDefinitions:
+      "2":
+        database: PACKAGES
+        schema: RETAIL
+  UTILS:
+    mappingDefinitions:
+      "2":
+        database: PACKAGES
+        schema: UTILS_TEST
 macros: {}
 packages: {}
 projects: {}
@@ -386,15 +390,26 @@ stepTypes:
                             {% if config.propNonDelete == false %}
                                 {{ colVal }} as "{{ col }}"
                             {% else %}
-                                CASE WHEN "{{ tblColDMLStr }}" = '{{tblColDMLDelete}}' THEN lag({{colVal}}) over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" asc) ELSE {{colVal}} END as "{{ col }}"
+                                CASE 
+                                    WHEN "{{ tblColDMLStr }}" = '{{tblColDMLDelete}}' 
+                                    THEN lag({{colVal}}) over 
+                                        (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" asc) 
+                                    ELSE {{colVal}} 
+                                END as "{{ col }}"
                             {% endif %}
                             ,
                         {% endfor %}
 
-                        "{{ tblColDMLStr }}" as "{{ tblColDMLStr }}",
+                        {% if config.propNonDelete or ctblColDMLStr != '' %}
+                            "{{ tblColDMLStr }}" as "{{ tblColDMLStr }}",
+                        {% endif %}
 
                         "{{ tblChgTSColStr }}" as "START_TIME",
-                        lag("{{ tblChgTSColStr }}") over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" desc) as "END_TIME",
+
+                        {% if config.isCurVal == false %}
+                            lag("{{ tblChgTSColStr }}") over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" desc) as "END_TIME",
+                        {% endif %}
+
                         CASE WHEN (row_number() over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" desc) = 1) THEN TRUE ELSE FALSE END as "{{currentFlag}}"
 
                         {{ sources[0].join }}
@@ -404,7 +419,7 @@ stepTypes:
                         {% endif %}
         run:
           templateString: ""
-    name: Dynamic Dimension
+    name: Dynamic Table
     version: 1
   StepType-Dimension:
     id: Dimension

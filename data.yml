@@ -364,15 +364,17 @@ stepTypes:
                 {% set tblColExcludeLs = (tblChgTSColLs) | unique | list %}
             {% endif %}
             {% set tblColIncludeLs = tblColLs | reject('in', tblColExcludeLs) | list %}
-            {% set currentFlag = 'IS_CURRENT' %}
 
-            {# Turn lists of columns into strings or joined strings where needed#}
+            {# Turn lists of columns into strings or joined strings where needed #}
             {% set tblKeyColStr = '"'+tblKeyColLs | join('", "')+'"' %}
             {% set tblChgTSColStr = tblChgTSColLs | first %}
             {% set tblColDMLStr = tblColDMLLs | first %}
             {% set tblColDMLDelete = config.dmlDelete %}
             {% set dtLagNumber = config.lagSpecification.get('items') | map(attribute='lagNumber') | first %}
             {% set dtLagType = config.lagSpecification.get('items') | map(attribute='lagType') | first %}
+
+            {# A vew easy variables #}
+            {% set currentFlag = 'IS_CURRENT' %}
 
                 {{ stage('Create Dynamic Table') }}
 
@@ -409,7 +411,11 @@ stepTypes:
                             "{{ tblColDMLStr }}" as "{{ tblColDMLStr }}",
                         {% endif %}
 
-                        "{{ tblChgTSColStr }}" as "START_TIME",
+                        {% if config.isCurVal %}
+                            "{{ tblChgTSColStr }}" as {{ tblChgTSColStr }},
+                        {% else %}
+                            "{{ tblChgTSColStr }}" as "START_TIME",
+                        {% endif %}
 
                         {% if config.isCurVal == false %}
                             lag("{{ tblChgTSColStr }}") over (partition by {{ tblKeyColStr }} 

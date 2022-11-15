@@ -357,7 +357,12 @@ stepTypes:
             {% set tblKeyColLs = columns | selectattr('tblKey', 'defined') | map(attribute='name') | list %}
             {% set tblChgTSColLs = columns | selectattr('tblChgTS', 'defined') | map(attribute='name') | list %}
             {% set tblColDMLLs = columns | selectattr('colDML', 'defined') | map(attribute='name') | list %}
-            {% set tblColExcludeLs = (tblChgTSColLs + tblColDMLLs) | unique | list %}
+            {# The Excluded list of columns depends on whether propNonDelete is TRUE #}
+            {% if config.propNonDelete %}
+                {% set tblColExcludeLs = (tblChgTSColLs + tblColDMLLs) | unique | list %}
+            {% else %}
+                {% set tblColExcludeLs = (tblChgTSColLs) | unique | list %}
+            {% endif %}
             {% set tblColIncludeLs = tblColLs | reject('in', tblColExcludeLs) | list %}
             {% set currentFlag = 'IS_CURRENT' %}
 
@@ -400,17 +405,23 @@ stepTypes:
                             ,
                         {% endfor %}
 
-                        {% if config.propNonDelete or ctblColDMLStr != '' %}
+                        {% if config.propNonDelete %}
                             "{{ tblColDMLStr }}" as "{{ tblColDMLStr }}",
                         {% endif %}
 
                         "{{ tblChgTSColStr }}" as "START_TIME",
 
                         {% if config.isCurVal == false %}
-                            lag("{{ tblChgTSColStr }}") over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" desc) as "END_TIME",
+                            lag("{{ tblChgTSColStr }}") over (partition by {{ tblKeyColStr }} 
+                                                                order by "{{ tblChgTSColStr }}" desc) as "END_TIME",
                         {% endif %}
 
-                        CASE WHEN (row_number() over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" desc) = 1) THEN TRUE ELSE FALSE END as "{{currentFlag}}"
+                        CASE 
+                            WHEN (row_number() over (partition by {{ tblKeyColStr }} 
+                                                        order by "{{ tblChgTSColStr }}" desc) = 1) 
+                            THEN TRUE 
+                            ELSE FALSE 
+                        END as "{{currentFlag}}"
 
                         {{ sources[0].join }}
 

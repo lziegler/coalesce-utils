@@ -258,22 +258,14 @@ stepTypes:
         tagColor: '#2299C4'
 
         config:
-        - groupName: Materialization Type
+        - groupName: Dynamic Table
           items:
-          - type: dropdownSelector
-            attributeName: matType
-            default: dynamic table
-            options:
-            - dynamic table
-            - view
-            isRequired: true
             
           - displayName: Warehouse on which to execute Dynamic Table
             attributeName: whName
             type: textBox
             default: 'compute_wh'
-            isRequired: false
-            enableIf: "{% if config.matType == 'dynamic table' %} true {% else %} false {% endif %}"
+            isRequired: true
 
           - type: tabular
             displayName: 'Lag Specification'
@@ -284,8 +276,7 @@ stepTypes:
                displayName: Time Value
                attributeName: lagNumber
                default: 60
-               isRequired: false
-               enableIf: "{% if config.matType == 'dynamic table' %} true {% else %} false {% endif %}"
+               isRequired: true
             
             -  type: dropdownSelector
                displayName: Time Period
@@ -296,12 +287,9 @@ stepTypes:
                - Minutes
                - Hours
                - Days
-               isRequired: false
-               enableIf: "{% if config.matType == 'dynamic table' %} true {% else %} false {% endif %}"
+               isRequired: true
             
-            isRequired: false
-            enableIf: "{% if config.matType == 'dynamic table' %} true {% else %} false {% endif %}"
-
+            isRequired: true
 
           - displayName: Current Values Only
             attributeName: isCurVal
@@ -359,7 +347,7 @@ stepTypes:
             isRequired: false
       templates:
         create:
-          templateString: |-
+          templateString: |
             {# Create various lists of columns to work with #}
             {% set tblColLs = columns | map(attribute='name') | list %}
             {% set tblKeyColLs = columns | selectattr('tblKey', 'defined') | map(attribute='name') | list %}
@@ -367,6 +355,7 @@ stepTypes:
             {% set tblColDMLLs = columns | selectattr('colDML', 'defined') | map(attribute='name') | list %}
             {% set tblColExcludeLs = (tblChgTSColLs + tblColDMLLs) | unique | list %}
             {% set tblColIncludeLs = tblColLs | reject('in', tblColExcludeLs) | list %}
+            {% set currentFlag = 'IS_CURRENT' %}
 
             {# Turn lists of columns into strings or joined strings where needed#}
             {% set tblKeyColStr = '"'+tblKeyColLs | join('", "')+'"' %}
@@ -375,11 +364,6 @@ stepTypes:
             {% set tblColDMLDelete = config.dmlDelete %}
             {% set dtLagNumber = config.lagSpecification.get('items') | map(attribute='lagNumber') | first %}
             {% set dtLagType = config.lagSpecification.get('items') | map(attribute='lagType') | first %}
-
-            {%- if config.matType == 'dynamic table' %} 
-
-            	{#{ stage('Try Drop View') }#}
-                    {#{{ dropTblView() }}#}
 
                 {{ stage('Create Dynamic Table') }}
 
@@ -402,67 +386,20 @@ stepTypes:
                             {% if config.propNonDelete == false %}
                                 {{ colVal }} as {{ col }}
                             {% else %}
-                                CASE WHEN "{{ tblColDMLStr }}" = '{{tblColDMLDelete}}' THEN lead({{colVal}}) over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" desc) ELSE {{colVal}} END as {{ col }}
+                                CASE WHEN "{{ tblColDMLStr }}" = '{{tblColDMLDelete}}' THEN lag({{colVal}}) over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" asc) ELSE {{colVal}} END as {{ col }}
                             {% endif %}
                             ,
                         {% endfor %}
 
                         {{ tblChgTSColStr }} as "START_TIME",
                         lag("{{ tblChgTSColStr }}") over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" desc) as "END_TIME",
-                        CASE WHEN (row_number() over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" desc) = 1) THEN 1 ELSE 0 END as "CURRENT_FLAG"
+                        CASE WHEN (row_number() over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" desc) = 1) THEN TRUE ELSE FALSE END as {{currentFlag}}
 
                         {{ sources[0].join }}
 
                         {% if config.isCurVal == true %}
-                            QUALIFY "CURRENT_FLAG" = 1
+                            QUALIFY {{currentFlag}}
                         {% endif %}
-            {% endif %}
-
-            {%- if config.matType == 'view' %} 
-            	{#{ stage('Try Drop Table') }#}
-                    {{dropTblView()}}
-
-                {{ stage('Create Stage View') }}
-
-                    CREATE OR REPLACE VIEW {{ ref_no_link(node.location.name, node.name) }}
-                    (
-                        {% for col in tblColIncludeLs %}
-                            "{{ columns | selectattr('name', 'equalto', col) | map(attribute='name') | first }}"
-                            {% set colDesc = columns | selectattr('name', 'equalto', col) | map(attribute='description') | first %}
-                            {%- if colDesc | length > 0 %} COMMENT '{{ colDesc }}'{% endif %}
-                            ,
-                        {% endfor %}
-
-                        "START_TIME",
-                        "END_TIME",
-                        "CURRENT_FLAG"
-                    )
-                    {%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}
-
-                    AS
-                        SELECT
-                        {% for col in tblColIncludeLs %}
-                            {% set colTransform = sources[0].columns | selectattr('name', 'equalto', col) | map(attribute='transform') | first %}
-
-                            {% if colTransform == "" %}
-                                {{ col }}
-                            {% else %}
-                                {{ colTransform }}
-                            {% endif %}
-                            ,
-                        {% endfor %}
-
-                        {{ tblChgTSColStr }} as "START_TIME",
-                        lag("{{ tblChgTSColStr }}") over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" desc) as "END_TIME",
-                        CASE WHEN (row_number() over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" desc) = 1) THEN 1 ELSE 0 END as "CURRENT_FLAG"
-
-                        {{ sources[0].join }}
-
-                        {% if config.isCurVal == true %}
-                            QUALIFY "CURRENT_FLAG" = 1
-                        {% endif %}
-
-            {% endif %}
         run:
           templateString: ""
     name: Dynamic Dimension

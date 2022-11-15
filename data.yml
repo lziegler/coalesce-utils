@@ -291,11 +291,6 @@ stepTypes:
             
             isRequired: true
 
-          - displayName: Current Values Only
-            attributeName: isCurVal
-            type: toggleButton
-            default: false
-
         - groupName: Change Tracking Options
           items:
 
@@ -325,7 +320,12 @@ stepTypes:
             type: textBox
             default: 'D'
             isRequired: false
-            enableIf: "{{ config.propNonDelete }}" 
+            enableIf: "{{ config.propNonDelete }}"
+
+          - displayName: Current Values Only
+            attributeName: isCurVal
+            type: toggleButton
+            default: false
          
         - groupName: Other Options
           items:
@@ -384,21 +384,23 @@ stepTypes:
                             {% endif %}
 
                             {% if config.propNonDelete == false %}
-                                {{ colVal }} as {{ col }}
+                                {{ colVal }} as "{{ col }}"
                             {% else %}
-                                CASE WHEN "{{ tblColDMLStr }}" = '{{tblColDMLDelete}}' THEN lag({{colVal}}) over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" asc) ELSE {{colVal}} END as {{ col }}
+                                CASE WHEN "{{ tblColDMLStr }}" = '{{tblColDMLDelete}}' THEN lag({{colVal}}) over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" asc) ELSE {{colVal}} END as "{{ col }}"
                             {% endif %}
                             ,
                         {% endfor %}
 
-                        {{ tblChgTSColStr }} as "START_TIME",
+                        "{{ tblColDMLStr }}" as "{{ tblColDMLStr }}",
+
+                        "{{ tblChgTSColStr }}" as "START_TIME",
                         lag("{{ tblChgTSColStr }}") over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" desc) as "END_TIME",
-                        CASE WHEN (row_number() over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" desc) = 1) THEN TRUE ELSE FALSE END as {{currentFlag}}
+                        CASE WHEN (row_number() over (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" desc) = 1) THEN TRUE ELSE FALSE END as "{{currentFlag}}"
 
                         {{ sources[0].join }}
 
                         {% if config.isCurVal == true %}
-                            QUALIFY {{currentFlag}}
+                            QUALIFY "{{currentFlag}}"
                         {% endif %}
         run:
           templateString: ""

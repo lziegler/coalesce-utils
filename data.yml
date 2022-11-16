@@ -192,21 +192,21 @@ stepTypes:
                         {% if config.changeTracking %}
 
                             {% if config.propNonDelete %}
-                                ,"{{ tblColDMLStr }}" as "{{ tblColDMLStr }}"
+                                , "{{ tblColDMLStr }}" as "{{ tblColDMLStr }}"
                             {% endif %}
 
                             {% if config.isCurVal %}
-                                ,"{{ tblChgTSColStr }}" as {{ tblChgTSColStr }}
+                                , "{{ tblChgTSColStr }}" as {{ tblChgTSColStr }}
                             {% elif config.changeTracking %}
-                                ,"{{ tblChgTSColStr }}" as "START_TIME"
+                                , "{{ tblChgTSColStr }}" as "START_TIME"
                             {% endif %}
 
                             {% if not config.isCurVal %}
-                                ,lag("{{ tblChgTSColStr }}") over (partition by {{ tblKeyColStr }} 
+                                , lag("{{ tblChgTSColStr }}") over (partition by {{ tblKeyColStr }} 
                                                                     order by "{{ tblChgTSColStr }}" desc) as "END_TIME"
                             {% endif %}
 
-                            ,CASE 
+                            , CASE 
                                 WHEN (row_number() over (partition by {{ tblKeyColStr }} 
                                                             order by "{{ tblChgTSColStr }}" desc) = 1) 
                                 THEN TRUE 

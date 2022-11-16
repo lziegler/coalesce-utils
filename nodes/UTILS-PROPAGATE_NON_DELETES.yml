@@ -2,6 +2,7 @@ steps:
   PROPAGATE_NON_DELETES-23:
     operation:
       config:
+        changeTracking: true
         dmlDelete: D
         isCurVal: false
         lagSpecification:

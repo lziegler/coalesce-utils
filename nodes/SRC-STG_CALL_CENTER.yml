@@ -1,0 +1,109 @@
+steps:
+  STG_CALL_CENTER-19:
+    operation:
+      config:
+        insertStrategy: INSERT
+        postSQL: ""
+        preSQL: ""
+        testsEnabled: true
+        truncateBefore: true
+      database: ""
+      dependencies: []
+      deployEnabled: true
+      description: ""
+      isDataVault: false
+      isMultisource: false
+      locationID: ""
+      locationName: SRC
+      materializationType: table
+      metadata:
+        appliedNodeTests: []
+        columns:
+          - columnReference:
+              columnCounter: 425
+              stepCounter: "19"
+            dataType: NUMBER(38,0)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: CC_CALL_CENTER_ID
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 257
+                    stepCounter: "13"
+                transform: ""
+          - columnReference:
+              columnCounter: 426
+              stepCounter: "19"
+            dataType: VARCHAR(16777216)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: CC_NAME
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 258
+                    stepCounter: "13"
+                transform: ""
+          - columnReference:
+              columnCounter: 427
+              stepCounter: "19"
+            dataType: VARCHAR(16777216)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: CC_CLASS
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 259
+                    stepCounter: "13"
+                transform: ""
+          - columnReference:
+              columnCounter: 451
+              stepCounter: "19"
+            dataType: DATE
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: CC_UPDATE_TS
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 283
+                    stepCounter: "13"
+                transform: ""
+          - columnReference:
+              columnCounter: 452
+              stepCounter: "19"
+            dataType: VARCHAR(16777216)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: CC_DML_TYPE
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 284
+                    stepCounter: "13"
+                transform: ""
+        cteString: ""
+        enabledColumnTestIDs: []
+        sourceMapping:
+          - customSQL:
+              customSQL: ""
+            dependencies:
+              - locationName: SRC
+                nodeName: CALL_CENTER
+            join:
+              joinCondition: FROM {{ ref('SRC', 'CALL_CENTER') }} "CALL_CENTER"
+            name: STG_CALL_CENTER
+            noLinkRefs: []
+      name: STG_CALL_CENTER
+      overrideSQL: false
+      schema: ""
+      sqlType: Stage
+      type: sql
+    stepCounter: "19"

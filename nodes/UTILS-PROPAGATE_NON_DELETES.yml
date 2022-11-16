@@ -1,0 +1,133 @@
+steps:
+  PROPAGATE_NON_DELETES-23:
+    operation:
+      config:
+        dmlDelete: D
+        isCurVal: false
+        lagSpecification:
+          items:
+            - lagNumber: "60"
+              lagType: Minutes
+        postSQL: ""
+        preSQL: ""
+        propNonDelete: true
+        testsEnabled: true
+        whName: packages
+      database: ""
+      dependencies: []
+      deployEnabled: true
+      description: ""
+      isDataVault: false
+      isMultisource: false
+      locationID: ""
+      locationName: UTILS
+      materializationType: table
+      metadata:
+        appliedNodeTests:
+          - continueOnFailure: true
+            description: ""
+            name: No Null IDs
+            runOrder: After
+            templateString: |-
+              select
+                  cc_call_center_id id,
+                  cc_name cn
+              from
+                  {{this}}
+              where
+                  cn is null;
+        columns:
+          - columnReference:
+              columnCounter: 501
+              stepCounter: "23"
+            config:
+              tblKey: true
+            dataType: NUMBER(38,0)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: CC_CALL_CENTER_ID
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 425
+                    stepCounter: "19"
+                transform: ""
+          - columnReference:
+              columnCounter: 502
+              stepCounter: "23"
+            dataType: VARCHAR(16777216)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: CC_NAME
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 426
+                    stepCounter: "19"
+                transform: ""
+          - columnReference:
+              columnCounter: 503
+              stepCounter: "23"
+            dataType: VARCHAR(16777216)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: CC_CLASS
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 427
+                    stepCounter: "19"
+                transform: ""
+          - columnReference:
+              columnCounter: 504
+              stepCounter: "23"
+            config:
+              tblChgTS: true
+            dataType: DATE
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: CC_UPDATE_TS
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 451
+                    stepCounter: "19"
+                transform: ""
+          - columnReference:
+              columnCounter: 505
+              stepCounter: "23"
+            config:
+              colDML: true
+            dataType: VARCHAR(16777216)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: CC_DML_TYPE
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 452
+                    stepCounter: "19"
+                transform: ""
+        cteString: ""
+        enabledColumnTestIDs: []
+        sourceMapping:
+          - customSQL:
+              customSQL: ""
+            dependencies:
+              - locationName: SRC
+                nodeName: STG_CALL_CENTER
+            join:
+              joinCondition: FROM {{ ref('SRC', 'STG_CALL_CENTER') }} "STG_CALL_CENTER"
+            name: PROPAGATE_NON_DELETES
+            noLinkRefs: []
+      name: PROPAGATE_NON_DELETES
+      overrideSQL: false
+      schema: ""
+      sqlType: "6"
+      type: sql
+    stepCounter: "23"

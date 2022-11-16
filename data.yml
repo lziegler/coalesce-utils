@@ -189,33 +189,34 @@ stepTypes:
                         {%- if not loop.last -%}, {% endif %}
                         {% endfor %}
 
-                        {% if config.propNonDelete %}
-                            "{{ tblColDMLStr }}" as "{{ tblColDMLStr }}",
-                        {% endif %}
+                        {% if config.changeTracking %}
 
-                        {% if config.changeTracking and config.isCurVal %}
-                            "{{ tblChgTSColStr }}" as {{ tblChgTSColStr }},
-                        {% elif config.changeTracking %}
-                            "{{ tblChgTSColStr }}" as "START_TIME",
-                        {% endif %}
+                            {% if config.propNonDelete %}
+                                ,"{{ tblColDMLStr }}" as "{{ tblColDMLStr }}"
+                            {% endif %}
 
-                        {% if config.isCurVal == false %}
-                            lag("{{ tblChgTSColStr }}") over (partition by {{ tblKeyColStr }} 
-                                                                order by "{{ tblChgTSColStr }}" desc) as "END_TIME",
-                        {% endif %}
+                            {% if config.isCurVal %}
+                                ,"{{ tblChgTSColStr }}" as {{ tblChgTSColStr }}
+                            {% elif config.changeTracking %}
+                                ,"{{ tblChgTSColStr }}" as "START_TIME"
+                            {% endif %}
 
-                        {% if changeTracking %}
-                        CASE 
-                            WHEN (row_number() over (partition by {{ tblKeyColStr }} 
-                                                        order by "{{ tblChgTSColStr }}" desc) = 1) 
-                            THEN TRUE 
-                            ELSE FALSE 
-                        END as "{{currentFlag}}"
+                            {% if not config.isCurVal %}
+                                ,lag("{{ tblChgTSColStr }}") over (partition by {{ tblKeyColStr }} 
+                                                                    order by "{{ tblChgTSColStr }}" desc) as "END_TIME"
+                            {% endif %}
+
+                            ,CASE 
+                                WHEN (row_number() over (partition by {{ tblKeyColStr }} 
+                                                            order by "{{ tblChgTSColStr }}" desc) = 1) 
+                                THEN TRUE 
+                                ELSE FALSE 
+                            END as "{{currentFlag}}"
                         {% endif %}
 
                         {{ sources[0].join }}
 
-                        {% if config.isCurVal == true and config.changeTracking %}
+                        {% if config.changeTracking and config.isCurVal == true  %}
                             QUALIFY "{{currentFlag}}"
                         {% endif %}
         run:

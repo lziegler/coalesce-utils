@@ -24,25 +24,7 @@ steps:
       locationName: UTILS
       materializationType: table
       metadata:
-        appliedNodeTests:
-          - continueOnFailure: false
-            description: ""
-            name: Only 1 IS_CURRENT
-            runOrder: After
-            templateString: |-
-              select
-                  cc_call_center_id id,
-                  is_current ic,
-                  count(*) cnt
-              from
-                  {{this}}
-              where
-                  ic
-              group by
-                  id,
-                  ic
-              having
-                  cnt > 1;
+        appliedNodeTests: []
         columns:
           - columnReference:
               columnCounter: 645

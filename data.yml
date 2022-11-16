@@ -93,14 +93,14 @@ stepTypes:
             attributeName: colDML
             type: columnSelector
             isRequired: false
-            enableIf: "{{ config.propNonDelete }}"
+            enableIf: "{{ config.propNonDelete and config.changeTracking }}"
          
           - displayName: DML Delete Indentifier
             attributeName: dmlDelete
             type: textBox
             default: 'D'
             isRequired: false
-            enableIf: "{{ config.propNonDelete }}"
+            enableIf: "{{ config.propNonDelete and config.changeTracking }}"
 
           - displayName: Current Values Only
             attributeName: isCurVal
@@ -176,8 +176,10 @@ stepTypes:
                                 {% set colVal = colTransform %}
                             {% endif %}
 
-                            {% if not config.propNonDelete %}
+                            {% if not config.changeTracking %}
                                 {{ colVal }} as "{{ col }}"
+                            {% elif not config.propNonDelete %}
+                                {{ colVal }} as "{{ col }}"                
                             {% else %}
                                 CASE 
                                     WHEN "{{ tblColDMLStr }}" = '{{tblColDMLDelete}}' 
@@ -217,6 +219,7 @@ stepTypes:
                         {{ sources[0].join }}
 
                         {% if config.changeTracking and config.isCurVal == true  %}
+                            
                             QUALIFY "{{currentFlag}}"
                         {% endif %}
         run:

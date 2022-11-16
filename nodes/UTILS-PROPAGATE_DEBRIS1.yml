@@ -1,16 +1,17 @@
 steps:
-  PROPAGATE_NON_DELETES_CURRENT_VALUES-24:
+  PROPAGATE_DEBRIS1-28:
     operation:
       config:
+        changeTracking: false
         dmlDelete: D
-        isCurVal: true
+        isCurVal: false
         lagSpecification:
           items:
-            - lagNumber: "60"
+            - lagNumber: 60
               lagType: Minutes
         postSQL: ""
         preSQL: ""
-        propNonDelete: true
+        propNonDelete: false
         testsEnabled: true
         whName: packages
       database: ""
@@ -23,39 +24,11 @@ steps:
       locationName: UTILS
       materializationType: table
       metadata:
-        appliedNodeTests:
-          - continueOnFailure: true
-            description: ""
-            name: No Null IDs
-            runOrder: After
-            templateString: |-
-              select
-                  cc_call_center_id id,
-                  cc_name cn
-              from
-                  {{this}}
-              where
-                  cn is null;
-          - continueOnFailure: true
-            description: ""
-            name: Only Current Values
-            runOrder: After
-            templateString: |-
-              select
-                  cc_call_center_id id,
-                  is_current ic,
-                  count(*) cnt
-              from
-                  {{this}}
-              group by
-                  id,
-                  ic
-              having
-                  cnt > 1;
+        appliedNodeTests: []
         columns:
           - columnReference:
-              columnCounter: 544
-              stepCounter: "24"
+              columnCounter: 756
+              stepCounter: "28"
             config:
               tblKey: true
             dataType: NUMBER(38,0)
@@ -70,8 +43,8 @@ steps:
                     stepCounter: "19"
                 transform: ""
           - columnReference:
-              columnCounter: 545
-              stepCounter: "24"
+              columnCounter: 757
+              stepCounter: "28"
             dataType: VARCHAR(16777216)
             description: ""
             hashColumns: []
@@ -84,8 +57,8 @@ steps:
                     stepCounter: "19"
                 transform: ""
           - columnReference:
-              columnCounter: 546
-              stepCounter: "24"
+              columnCounter: 758
+              stepCounter: "28"
             dataType: VARCHAR(16777216)
             description: ""
             hashColumns: []
@@ -98,8 +71,8 @@ steps:
                     stepCounter: "19"
                 transform: ""
           - columnReference:
-              columnCounter: 547
-              stepCounter: "24"
+              columnCounter: 759
+              stepCounter: "28"
             config:
               tblChgTS: true
             dataType: DATE
@@ -114,8 +87,8 @@ steps:
                     stepCounter: "19"
                 transform: ""
           - columnReference:
-              columnCounter: 548
-              stepCounter: "24"
+              columnCounter: 760
+              stepCounter: "28"
             config:
               colDML: true
             dataType: VARCHAR(16777216)
@@ -139,11 +112,11 @@ steps:
                 nodeName: STG_CALL_CENTER
             join:
               joinCondition: FROM {{ ref('SRC', 'STG_CALL_CENTER') }} "STG_CALL_CENTER"
-            name: PROPAGATE_NON_DELETES_CURRENT_VALUES
+            name: PROPAGATE_DEBRIS1
             noLinkRefs: []
-      name: PROPAGATE_NON_DELETES_CURRENT_VALUES
+      name: PROPAGATE_DEBRIS1
       overrideSQL: false
       schema: ""
       sqlType: "6"
       type: sql
-    stepCounter: "24"
+    stepCounter: "28"

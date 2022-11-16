@@ -27,7 +27,7 @@ steps:
         appliedNodeTests:
           - continueOnFailure: false
             description: ""
-            name: Only 1 IS_CURRENT
+            name: Single IS_CURRENT per key
             runOrder: After
             templateString: |-
               select

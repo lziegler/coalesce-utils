@@ -1,5 +1,5 @@
 steps:
-  CURRENT_VALUES-22:
+  PROPAGATE_CURRENT_VALUES-24:
     operation:
       config:
         changeTracking: true
@@ -11,7 +11,7 @@ steps:
               lagType: Minutes
         postSQL: ""
         preSQL: ""
-        propNonDelete: false
+        propNonDelete: true
         testsEnabled: true
         whName: packages
       database: ""
@@ -27,7 +27,19 @@ steps:
         appliedNodeTests:
           - continueOnFailure: true
             description: ""
-            name: Only current records
+            name: No Null IDs
+            runOrder: After
+            templateString: |-
+              select
+                  cc_call_center_id id,
+                  cc_name cn
+              from
+                  {{this}}
+              where
+                  cn is null;
+          - continueOnFailure: true
+            description: ""
+            name: Only current values
             runOrder: After
             templateString: |-
               select
@@ -43,8 +55,8 @@ steps:
                   cnt > 1;
         columns:
           - columnReference:
-              columnCounter: 463
-              stepCounter: "22"
+              columnCounter: 544
+              stepCounter: "24"
             config:
               tblKey: true
             dataType: NUMBER(38,0)
@@ -59,8 +71,8 @@ steps:
                     stepCounter: "19"
                 transform: ""
           - columnReference:
-              columnCounter: 464
-              stepCounter: "22"
+              columnCounter: 545
+              stepCounter: "24"
             dataType: VARCHAR(16777216)
             description: ""
             hashColumns: []
@@ -73,8 +85,8 @@ steps:
                     stepCounter: "19"
                 transform: ""
           - columnReference:
-              columnCounter: 465
-              stepCounter: "22"
+              columnCounter: 546
+              stepCounter: "24"
             dataType: VARCHAR(16777216)
             description: ""
             hashColumns: []
@@ -87,8 +99,8 @@ steps:
                     stepCounter: "19"
                 transform: ""
           - columnReference:
-              columnCounter: 466
-              stepCounter: "22"
+              columnCounter: 547
+              stepCounter: "24"
             config:
               tblChgTS: true
             dataType: DATE
@@ -103,8 +115,10 @@ steps:
                     stepCounter: "19"
                 transform: ""
           - columnReference:
-              columnCounter: 467
-              stepCounter: "22"
+              columnCounter: 548
+              stepCounter: "24"
+            config:
+              colDML: true
             dataType: VARCHAR(16777216)
             description: ""
             hashColumns: []
@@ -126,11 +140,11 @@ steps:
                 nodeName: STG_CALL_CENTER
             join:
               joinCondition: FROM {{ ref('SRC', 'STG_CALL_CENTER') }} "STG_CALL_CENTER"
-            name: CURRENT_VALUES
+            name: PROPAGATE_CURRENT_VALUES
             noLinkRefs: []
-      name: CURRENT_VALUES
+      name: PROPAGATE_CURRENT_VALUES
       overrideSQL: false
       schema: ""
       sqlType: "6"
       type: sql
-    stepCounter: "22"
+    stepCounter: "24"

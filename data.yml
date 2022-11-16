@@ -13,7 +13,9 @@ locations:
         schema: UTILS_TEST
 macros: {}
 packages: {}
-projects: {}
+projects:
+  "1":
+    name: COALESCE-UTILS
 stepTypes:
   StepType-6:
     id: "6"

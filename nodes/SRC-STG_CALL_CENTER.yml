@@ -17,7 +17,18 @@ steps:
       locationName: SRC
       materializationType: table
       metadata:
-        appliedNodeTests: []
+        appliedNodeTests:
+          - continueOnFailure: true
+            description: ""
+            name: Unknown DML Types
+            runOrder: After
+            templateString: |-
+              select
+                  *
+              from 
+                  {{this}}
+              where 
+                  cc_dml_type not in ('I','U','D')
         columns:
           - columnReference:
               columnCounter: 425

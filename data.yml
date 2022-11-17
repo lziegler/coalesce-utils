@@ -33,7 +33,7 @@ stepTypes:
         - groupName: Dynamic Table
           items:
             
-          - displayName: Warehouse on which to execute Dynamic Table
+          - displayName: Warehouse for Dynamic Table
             attributeName: whName
             type: textBox
             default: 'compute_wh'
@@ -204,13 +204,16 @@ stepTypes:
                             {% endif %}
 
                             {% if not config.isCurVal %}
-                                , lag("{{ tblChgTSColStr }}") over (partition by {{ tblKeyColStr }} 
-                                                                    order by "{{ tblChgTSColStr }}" desc) as "END_TIME"
+                                , lag("{{ tblChgTSColStr }}") over 
+                                    (partition by {{ tblKeyColStr }} 
+                                     order by "{{ tblChgTSColStr }}" desc) 
+                                as "END_TIME"
                             {% endif %}
 
                             , CASE 
-                                WHEN (row_number() over (partition by {{ tblKeyColStr }} 
-                                                            order by "{{ tblChgTSColStr }}" desc) = 1) 
+                                WHEN (row_number() over 
+                                        (partition by {{ tblKeyColStr }} 
+                                         order by "{{ tblChgTSColStr }}" desc) = 1) 
                                 THEN TRUE 
                                 ELSE FALSE 
                             END as "{{currentFlag}}"
@@ -237,7 +240,6 @@ stepTypes:
             {% endif %}
 
             {{ stage('Skip Dynamic Table') }}
-
             SELECT CURRENT_TIMESTAMP;
 
             {% if config.postSQL %}

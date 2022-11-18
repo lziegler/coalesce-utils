@@ -1,18 +1,23 @@
 steps:
-  PROPAGATE_DEBRIS1-28:
+  PROPAGATE_DEBRIS-28:
     operation:
       config:
         changeTracking: false
         dmlDelete: D
         isCurVal: false
+        lagSpec:
+          items:
+            - lagNumber: 60
+              lagType: Minutes
         lagSpecification:
           items:
             - lagNumber: 60
               lagType: Minutes
         postSQL: ""
         preSQL: ""
-        propNonDelete: false
+        propNonDelete: true
         testsEnabled: true
+        trackChanges: false
         whName: packages
       database: ""
       dependencies: []
@@ -75,6 +80,7 @@ steps:
               stepCounter: "28"
             config:
               tblChgTS: true
+              timeColumn: true
             dataType: DATE
             description: ""
             hashColumns: []
@@ -112,9 +118,9 @@ steps:
                 nodeName: STG_CALL_CENTER
             join:
               joinCondition: FROM {{ ref('SRC', 'STG_CALL_CENTER') }} "STG_CALL_CENTER"
-            name: PROPAGATE_DEBRIS1
+            name: PROPAGATE_DEBRIS
             noLinkRefs: []
-      name: PROPAGATE_DEBRIS1
+      name: PROPAGATE_DEBRIS
       overrideSQL: false
       schema: ""
       sqlType: "6"

@@ -29,11 +29,13 @@ stepTypes:
         plural: Dynamic Tables
         tagColor: '#2299C4'
 
+        #deployStrategy: advanced
+
         config:
         - groupName: Dynamic Table
           items:
             
-          - displayName: Warehouse for Dynamic Table
+          - displayName: Refresh Warehouse
             attributeName: whName
             type: textBox
             default: 'compute_wh'
@@ -41,7 +43,7 @@ stepTypes:
 
           - type: tabular
             displayName: 'Lag Specification'
-            attributeName: lagSpecification
+            attributeName: lagSpec
             columns:
           
             -  type: textBox
@@ -67,46 +69,46 @@ stepTypes:
           items:
 
           - displayName: Enable Change Tracking
-            attributeName: changeTracking
+            attributeName: trackChanges
             type: toggleButton
             default: false
 
           - displayName: Table Key Column(s)
-            attributeName: tblKey
+            attributeName: keyColumn
             type: columnSelector
             isRequired: false
-            enableIf: "{{ config.changeTracking }}"
+            enableIf: "{{ config.trackChanges }}"
 
           - displayName: Row Update Timestamp Column
-            attributeName: tblChgTS
+            attributeName: timeColumn
             type: columnSelector
             isRequired: false
-            enableIf: "{{ config.changeTracking }}"
+            enableIf: "{{ config.trackChanges }}"
 
           - displayName: Propagate Last Non-Delete
-            attributeName: propNonDelete
+            attributeName: nonDelete
             type: toggleButton
             default: false
-            enableIf: "{{ config.changeTracking }}"
+            enableIf: "{{ config.trackChanges }}"
 
           - displayName: DML Identifier Column
             attributeName: colDML
             type: columnSelector
             isRequired: false
-            enableIf: "{{ config.propNonDelete and config.changeTracking }}"
+            enableIf: "{{ config.nonDelete and config.trackChanges }}"
          
           - displayName: DML Delete Indentifier
             attributeName: dmlDelete
             type: textBox
             default: 'D'
             isRequired: false
-            enableIf: "{{ config.propNonDelete and config.changeTracking }}"
+            enableIf: "{{ config.nonDelete and config.trackChanges }}"
 
           - displayName: Current Values Only
             attributeName: isCurVal
             type: toggleButton
             default: false
-            enableIf: "{{ config.changeTracking }}"
+            enableIf: "{{ config.trackChanges }}"
          
         - groupName: Other Options
           items:
@@ -130,29 +132,29 @@ stepTypes:
         create:
           templateString: |
             {# Create various lists of columns to work with #}
-            {% set tblColLs = columns | map(attribute='name') | list %}
-            {% set tblKeyColLs = columns | selectattr('tblKey', 'defined') | map(attribute='name') | list %}
-            {% set tblChgTSColLs = columns | selectattr('tblChgTS', 'defined') | map(attribute='name') | list %}
-            {% set tblColDMLLs = columns | selectattr('colDML', 'defined') | map(attribute='name') | list %}
+            {% set columnList = columns | map(attribute='name') | list %}
+            {% set keyColumnList = columns | selectattr('keyColumn', 'defined') | map(attribute='name') | list %}
+            {% set timeColumnList = columns | selectattr('tblChgTS', 'defined') | map(attribute='name') | list %}
+            {% set dmlColumnList = columns | selectattr('colDML', 'defined') | map(attribute='name') | list %}
 
             {# The Excluded list of columns depends on certain values #}
-            {% if not config.changeTracking %}
-                {% set tblColExcludeLs = [] %}
-            {% elif config.changeTracking and not config.propNonDelete %}
-                {% set tblColExcludeLs = (tblChgTSColLs) | unique | list %}
+            {% if not config.trackChanges %}
+                {% set excludeList = [] %}
+            {% elif config.trackChanges and not config.nonDelete %}
+                {% set excludeList = (timeColumnList) | unique | list %}
             {% else %}
-                {% set tblColExcludeLs = (tblChgTSColLs + tblColDMLLs) | unique | list %}
+                {% set excludeList = (timeColumnList + dmlColumnList) | unique | list %}
             {% endif %}
 
-            {% set tblColIncludeLs = tblColLs | reject('in', tblColExcludeLs) | list %}
+            {% set includeList = columnList | reject('in', excludeList) | list %}
 
             {# Turn lists of columns into strings or joined strings where needed #}
-            {% set tblKeyColStr = '"'+tblKeyColLs | join('", "')+'"' %}
-            {% set tblChgTSColStr = tblChgTSColLs | first %}
-            {% set tblColDMLStr = tblColDMLLs | first %}
-            {% set tblColDMLDelete = config.dmlDelete %}
-            {% set dtLagNumber = config.lagSpecification.get('items') | map(attribute='lagNumber') | first %}
-            {% set dtLagType = config.lagSpecification.get('items') | map(attribute='lagType') | first %}
+            {% set keyColumns = '"'+keyColumnList | join('", "')+'"' %}
+            {% set timeColumn = timeColumnList | first %}
+            {% set dmlColumn = dmlColumnList | first %}
+            {% set dmlValue = config.dmlDelete %}
+            {% set dtLagNumber = config.lagSpec.get('items') | map(attribute='lagNumber') | first %}
+            {% set dtLagType = config.lagSpec.get('items') | map(attribute='lagType') | first %}
 
             {# A vew easy variables #}
             {% set currentFlag = 'IS_CURRENT' %}
@@ -164,7 +166,7 @@ stepTypes:
                         WAREHOUSE = {{config.whName}}
                     AS
                         SELECT
-                        {% for col in tblColIncludeLs %}
+                        {% for col in includeList %}
 
                             {% set colTransform = sources[0].columns | selectattr('name', 'equalto', col) | map(attribute='transform') | first %}
                             {% set colDesc = columns | selectattr('name', 'equalto', col) | map(attribute='description') | first %}
@@ -176,44 +178,44 @@ stepTypes:
                                 {% set colVal = colTransform %}
                             {% endif %}
 
-                            {% if not config.changeTracking %}
+                            {% if not config.trackChanges %}
                                 {{ colVal }} as "{{ col }}"
-                            {% elif not config.propNonDelete %}
+                            {% elif not config.nonDelete %}
                                 {{ colVal }} as "{{ col }}"                
                             {% else %}
                                 CASE 
-                                    WHEN "{{ tblColDMLStr }}" = '{{tblColDMLDelete}}' 
+                                    WHEN "{{ dmlColumn }}" = '{{dmlValue}}' 
                                     THEN lag({{colVal}}) over 
-                                        (partition by {{ tblKeyColStr }} order by "{{ tblChgTSColStr }}" asc) 
+                                        (partition by {{ keyColumns }} order by "{{ timeColumn }}" asc) 
                                     ELSE {{colVal}} 
                                 END as "{{ col }}"
                             {% endif %}
                         {%- if not loop.last -%}, {% endif %}
                         {% endfor %}
 
-                        {% if config.changeTracking %}
+                        {% if config.trackChanges %}
 
-                            {% if config.propNonDelete %}
-                                , "{{ tblColDMLStr }}" as "{{ tblColDMLStr }}"
+                            {% if config.nonDelete %}
+                                , "{{ dmlColumn }}" as "{{ dmlColumn }}"
                             {% endif %}
 
                             {% if config.isCurVal %}
-                                , "{{ tblChgTSColStr }}" as {{ tblChgTSColStr }}
-                            {% elif config.changeTracking %}
-                                , "{{ tblChgTSColStr }}" as "START_TIME"
+                                , "{{ timeColumn }}" as {{ timeColumn }}
+                            {% elif config.trackChanges %}
+                                , "{{ timeColumn }}" as "START_TIME"
                             {% endif %}
 
                             {% if not config.isCurVal %}
-                                , lag("{{ tblChgTSColStr }}") over 
-                                    (partition by {{ tblKeyColStr }} 
-                                     order by "{{ tblChgTSColStr }}" desc) 
+                                , lag("{{ timeColumn }}") over 
+                                    (partition by {{ keyColumns }} 
+                                     order by "{{ timeColumn }}" desc) 
                                 as "END_TIME"
                             {% endif %}
 
                             , CASE 
                                 WHEN (row_number() over 
-                                        (partition by {{ tblKeyColStr }} 
-                                         order by "{{ tblChgTSColStr }}" desc) = 1) 
+                                        (partition by {{ keyColumns }} 
+                                         order by "{{ timeColumn }}" desc) = 1) 
                                 THEN TRUE 
                                 ELSE FALSE 
                             END as "{{currentFlag}}"
@@ -221,7 +223,7 @@ stepTypes:
 
                         {{ sources[0].join }}
 
-                        {% if config.changeTracking and config.isCurVal == true  %}
+                        {% if config.trackChanges and config.isCurVal == true  %}
                             
                             QUALIFY "{{currentFlag}}"
                         {% endif %}
@@ -1860,7 +1862,7 @@ stepTypes:
     version: 1
   StepType-View:
     id: View
-    isDisabled: true
+    isDisabled: false
     metadata:
       defaultStorageLocation: null
       error: null

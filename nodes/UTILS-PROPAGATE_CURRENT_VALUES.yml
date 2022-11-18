@@ -5,14 +5,20 @@ steps:
         changeTracking: true
         dmlDelete: D
         isCurVal: true
+        lagSpec:
+          items:
+            - lagNumber: 60
+              lagType: Minutes
         lagSpecification:
           items:
             - lagNumber: "60"
               lagType: Minutes
+        nonDelete: false
         postSQL: ""
         preSQL: ""
         propNonDelete: true
         testsEnabled: true
+        trackChanges: true
         whName: packages
       database: ""
       dependencies: []
@@ -58,6 +64,7 @@ steps:
               columnCounter: 544
               stepCounter: "24"
             config:
+              keyColumn: true
               tblKey: true
             dataType: NUMBER(38,0)
             description: ""
@@ -103,6 +110,7 @@ steps:
               stepCounter: "24"
             config:
               tblChgTS: true
+              timeColumn: true
             dataType: DATE
             description: ""
             hashColumns: []

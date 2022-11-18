@@ -152,7 +152,6 @@ stepTypes:
             {%- set dmlValue = config.deleteValue %}
             {%- set dtLagNumber = config.lagSpec.get('items') | map(attribute='lagNumber') | first %}
             {%- set dtLagType = config.lagSpec.get('items') | map(attribute='lagType') | first %}
-            {#- A vew easy variables #}
             {%- set currentFlag = 'IS_CURRENT' %}
             {{ stage('Create Dynamic Table') }}
             CREATE OR REPLACE DYNAMIC TABLE {{ ref_no_link(node.location.name, node.name) }}

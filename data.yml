@@ -134,7 +134,7 @@ stepTypes:
             {# Create various lists of columns to work with #}
             {% set columnList = columns | map(attribute='name') | list %}
             {% set keyColumnList = columns | selectattr('keyColumn', 'defined') | map(attribute='name') | list %}
-            {% set timeColumnList = columns | selectattr('tblChgTS', 'defined') | map(attribute='name') | list %}
+            {% set timeColumnList = columns | selectattr('timeColumn', 'defined') | map(attribute='name') | list %}
             {% set dmlColumnList = columns | selectattr('colDML', 'defined') | map(attribute='name') | list %}
 
             {# The Excluded list of columns depends on certain values #}

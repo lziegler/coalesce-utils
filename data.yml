@@ -29,7 +29,7 @@ stepTypes:
         plural: Dynamic Tables
         tagColor: '#2299C4'
 
-        #deployStrategy: advanced
+        deployStrategy: advanced
 
         config:
         - groupName: Dynamic Table
@@ -131,6 +131,13 @@ stepTypes:
       templates:
         create:
           templateString: |-
+            {#- Convenience variables for advanced deploy #}
+            {#- These can be easily changed when changing deploy strategy #}
+            {%- set config = desiredState.config %}
+            {%- set locationName = desiredState.node.location.name %}
+            {%- set nodeName = desiredState.node.name %}
+            {%- set sources = desiredState.sources %}
+            {%- set columns = desiredState.columns %}
             {#- Create various lists of columns to work with #}
             {%- set columnList = columns | map(attribute='name') | list %}
             {%- set keyColumnList = columns | selectattr('keyColumn', 'defined') | map(attribute='name') | list %}
@@ -153,8 +160,11 @@ stepTypes:
             {%- set dtLagNumber = config.lagSpec.get('items') | map(attribute='lagNumber') | first %}
             {%- set dtLagType = config.lagSpec.get('items') | map(attribute='lagType') | first %}
             {%- set currentFlag = 'IS_CURRENT' %}
-            {{ stage('Create Dynamic Table') }}
-            CREATE OR REPLACE DYNAMIC TABLE {{ ref_no_link(node.location.name, node.name) }}
+            {%- if desiredState == undefined %}
+              DROP DYNAMIC TABLE {{ ref_no_link(currentState.node.location.name, currentState.node.name) }}
+            {%- else %}
+            {{- stage('Create Dynamic Table') }}
+            CREATE OR REPLACE DYNAMIC TABLE {{ ref_no_link(locationName, nodeName) }}
             	LAG = '{{ dtLagNumber }} {{ dtLagType }}'
             	WAREHOUSE = {{config.whName}}
             AS
@@ -207,43 +217,44 @@ stepTypes:
             	{%- if config.trackChanges and config.isOnlyCurrent == true  %}
             		QUALIFY "{{currentFlag}}"
             	{%- endif %}
+            	{%- endif %}
         run:
           templateString: |-
             {% for test in node.tests if config.testsEnabled %}
-                {% if test.runOrder == 'Before' %}
+                {%- if test.runOrder == 'Before' %}
                     {{ test_stage(test.name, test.continueOnFailure) }}
                     {{ test.templateString }}
-                {% endif %}
-            {% endfor %}
+                {%- endif %}
+            {%- endfor %}
 
-            {% if config.preSQL %}
+            {%- if config.preSQL %}
                 {{ stage('Pre-SQL') }}
                 {{ config.preSQL }}
-            {% endif %}
+            {%- endif %}
 
-            {{ stage('Skip Dynamic Table') }}
-            SELECT CURRENT_TIMESTAMP;
+            {{- stage('Verify Dynamic Table') }}
+            SELECT COUNT(*)
+            FROM {{ ref_no_link(node.location.name, node.name) }};
+            {%- if config.postSQL %}
+                {{- stage('Post-SQL') }}
+                {{- config.postSQL }}
+            {%- endif %}
 
-            {% if config.postSQL %}
-                {{ stage('Post-SQL') }}
-                {{ config.postSQL }}
-            {% endif %}
+            {%- if config.testsEnabled %}
+            	{%- for test in node.tests %}
+            		{%- if test.runOrder == 'After' %}
+            			{{- test_stage(test.name, test.continueOnFailure) }}
+            			{{- test.templateString }}
+                    {%- endif %}
+            	{%- endfor %}
 
-            {% if config.testsEnabled %}
-            	{% for test in node.tests %}
-            		{% if test.runOrder == 'After' %}
-            			{{ test_stage(test.name, test.continueOnFailure) }}
-            			{{ test.templateString }}
-                    {% endif %}
-            	{% endfor %}
-
-            	{% for column in columns %}
-            		{% for test in column.tests %}
-            			{{ test_stage(column.name + ": " + test.name) }}
-            			{{ test.templateString }}
-            		{% endfor %}
-            	{% endfor %}
-            {% endif %}
+            	{%- for column in columns %}
+            		{%- for test in column.tests %}
+            			{{- test_stage(column.name + ": " + test.name) }}
+            			{{- test.templateString }}
+            		{%- endfor %}
+            	{%- endfor %}
+            {%- endif %}
     name: Dynamic Table
     version: 1
   StepType-7:

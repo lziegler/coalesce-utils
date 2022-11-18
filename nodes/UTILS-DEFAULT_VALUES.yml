@@ -2,21 +2,15 @@ steps:
   DEFAULT_VALUES-26:
     operation:
       config:
-        changeTracking: false
         dmlDelete: D
         isCurVal: false
         lagSpec:
           items:
             - lagNumber: 60
               lagType: Minutes
-        lagSpecification:
-          items:
-            - lagNumber: 60
-              lagType: Minutes
         nonDelete: false
         postSQL: ""
         preSQL: ""
-        propNonDelete: false
         testsEnabled: true
         trackChanges: false
         whName: packages

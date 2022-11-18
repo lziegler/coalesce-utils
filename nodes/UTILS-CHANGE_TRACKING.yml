@@ -9,14 +9,9 @@ steps:
           items:
             - lagNumber: 60
               lagType: Minutes
-        lagSpecification:
-          items:
-            - lagNumber: 60
-              lagType: Minutes
         nonDelete: false
         postSQL: ""
         preSQL: ""
-        propNonDelete: false
         testsEnabled: true
         trackChanges: true
         whName: packages
@@ -54,9 +49,7 @@ steps:
               columnCounter: 453
               stepCounter: "20"
             config:
-              keyColume: true
               keyColumn: true
-              tblKey: true
             dataType: NUMBER(38,0)
             description: ""
             hashColumns: []
@@ -100,7 +93,6 @@ steps:
               columnCounter: 456
               stepCounter: "20"
             config:
-              tblChgTS: true
               timeColumn: true
             dataType: DATE
             description: ""

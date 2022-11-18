@@ -2,21 +2,15 @@ steps:
   PROPAGATE-23:
     operation:
       config:
-        changeTracking: true
         dmlDelete: D
         isCurVal: false
         lagSpec:
           items:
             - lagNumber: 60
               lagType: Minutes
-        lagSpecification:
-          items:
-            - lagNumber: "60"
-              lagType: Minutes
-        nonDelete: false
+        nonDelete: true
         postSQL: ""
         preSQL: ""
-        propNonDelete: true
         testsEnabled: true
         trackChanges: true
         whName: packages
@@ -49,7 +43,6 @@ steps:
               stepCounter: "23"
             config:
               keyColumn: true
-              tblKey: true
             dataType: NUMBER(38,0)
             description: ""
             hashColumns: []
@@ -93,7 +86,6 @@ steps:
               columnCounter: 504
               stepCounter: "23"
             config:
-              tblChgTS: true
               timeColumn: true
             dataType: DATE
             description: ""

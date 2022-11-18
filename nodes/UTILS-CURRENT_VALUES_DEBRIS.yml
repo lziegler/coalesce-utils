@@ -2,7 +2,6 @@ steps:
   CURRENT_VALUES_DEBRIS-29:
     operation:
       config:
-        changeTracking: false
         dmlDelete: D
         isCurVal: true
         lagSpec:
@@ -13,12 +12,11 @@ steps:
           items:
             - lagNumber: "60"
               lagType: Minutes
-        nonDelete: false
+        nonDelete: true
         postSQL: ""
         preSQL: ""
-        propNonDelete: true
         testsEnabled: true
-        trackChanges: true
+        trackChanges: false
         whName: packages
       database: ""
       dependencies: []
@@ -37,7 +35,6 @@ steps:
               stepCounter: "29"
             config:
               keyColumn: true
-              tblKey: true
             dataType: NUMBER(38,0)
             description: ""
             hashColumns: []
@@ -81,7 +78,6 @@ steps:
               columnCounter: 822
               stepCounter: "29"
             config:
-              tblChgTS: true
               timeColumn: true
             dataType: DATE
             description: ""

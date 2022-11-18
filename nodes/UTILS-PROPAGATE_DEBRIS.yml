@@ -2,20 +2,15 @@ steps:
   PROPAGATE_DEBRIS-28:
     operation:
       config:
-        changeTracking: false
         dmlDelete: D
         isCurVal: false
         lagSpec:
           items:
             - lagNumber: 60
               lagType: Minutes
-        lagSpecification:
-          items:
-            - lagNumber: 60
-              lagType: Minutes
         postSQL: ""
         preSQL: ""
-        propNonDelete: true
+        nonDelete: true
         testsEnabled: true
         trackChanges: false
         whName: packages
@@ -35,7 +30,7 @@ steps:
               columnCounter: 756
               stepCounter: "28"
             config:
-              tblKey: true
+              keyColumn: true
             dataType: NUMBER(38,0)
             description: ""
             hashColumns: []
@@ -79,7 +74,6 @@ steps:
               columnCounter: 759
               stepCounter: "28"
             config:
-              tblChgTS: true
               timeColumn: true
             dataType: DATE
             description: ""

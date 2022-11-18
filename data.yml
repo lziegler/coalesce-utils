@@ -130,103 +130,84 @@ stepTypes:
             isRequired: false
       templates:
         create:
-          templateString: |
-            {# Create various lists of columns to work with #}
-            {% set columnList = columns | map(attribute='name') | list %}
-            {% set keyColumnList = columns | selectattr('keyColumn', 'defined') | map(attribute='name') | list %}
-            {% set timeColumnList = columns | selectattr('timeColumn', 'defined') | map(attribute='name') | list %}
-            {% set dmlColumnList = columns | selectattr('dmlColumn', 'defined') | map(attribute='name') | list %}
-
-            {# The Excluded list of columns depends on certain values #}
-            {% if not config.trackChanges %}
-                {% set excludeList = [] %}
-            {% elif config.trackChanges and not config.nonDelete %}
-                {% set excludeList = (timeColumnList) | unique | list %}
-            {% else %}
-                {% set excludeList = (timeColumnList + dmlColumnList) | unique | list %}
-            {% endif %}
-
-            {% set includeList = columnList | reject('in', excludeList) | list %}
-
+          templateString: |-
+            {#- Create various lists of columns to work with #}
+            {%- set columnList = columns | map(attribute='name') | list %}
+            {%- set keyColumnList = columns | selectattr('keyColumn', 'defined') | map(attribute='name') | list %}
+            {%- set timeColumnList = columns | selectattr('timeColumn', 'defined') | map(attribute='name') | list %}
+            {%- set dmlColumnList = columns | selectattr('dmlColumn', 'defined') | map(attribute='name') | list %}
+            {#- The Excluded list of columns depends on certain values #}
+            {%- if not config.trackChanges %}
+                {%- set excludeList = [] %}
+            {%- elif config.trackChanges and not config.nonDelete %}
+                {%- set excludeList = (timeColumnList) | unique | list %}
+            {%- else %}
+                {%- set excludeList = (timeColumnList + dmlColumnList) | unique | list %}
+            {%- endif %}
+            {%- set includeList = columnList | reject('in', excludeList) | list %}
             {# Turn lists of columns into strings or joined strings where needed #}
-            {% set keyColumns = '"'+keyColumnList | join('", "')+'"' %}
-            {% set timeColumn = timeColumnList | first %}
-            {% set dmlColumn = dmlColumnList | first %}
-            {% set dmlValue = config.deleteValue %}
-            {% set dtLagNumber = config.lagSpec.get('items') | map(attribute='lagNumber') | first %}
-            {% set dtLagType = config.lagSpec.get('items') | map(attribute='lagType') | first %}
-
-            {# A vew easy variables #}
-            {% set currentFlag = 'IS_CURRENT' %}
-
-                {{ stage('Create Dynamic Table') }}
-
-                    CREATE OR REPLACE DYNAMIC TABLE {{ ref_no_link(node.location.name, node.name) }}
-                        LAG = '{{ dtLagNumber }} {{ dtLagType }}'
-                        WAREHOUSE = {{config.whName}}
-                    AS
-                        SELECT
-                        {% for col in includeList %}
-
-                            {% set colTransform = sources[0].columns | selectattr('name', 'equalto', col) | map(attribute='transform') | first %}
-                            {% set colDesc = columns | selectattr('name', 'equalto', col) | map(attribute='description') | first %}
-
-
-                            {% if colTransform == "" %}
-                                {% set colVal = '"' + col + '"' %}
-                            {% else %}
-                                {% set colVal = colTransform %}
-                            {% endif %}
-
-                            {% if not config.trackChanges %}
-                                {{ colVal }} as "{{ col }}"
-                            {% elif not config.nonDelete %}
-                                {{ colVal }} as "{{ col }}"                
-                            {% else %}
-                                CASE 
-                                    WHEN "{{ dmlColumn }}" = '{{dmlValue}}' 
-                                    THEN lag({{colVal}}) over 
-                                        (partition by {{ keyColumns }} order by "{{ timeColumn }}" asc) 
-                                    ELSE {{colVal}} 
-                                END as "{{ col }}"
-                            {% endif %}
-                        {%- if not loop.last -%}, {% endif %}
-                        {% endfor %}
-
-                        {% if config.trackChanges %}
-
-                            {% if config.nonDelete %}
-                                , "{{ dmlColumn }}" as "{{ dmlColumn }}"
-                            {% endif %}
-
-                            {% if config.isOnlyCurrent %}
-                                , "{{ timeColumn }}" as {{ timeColumn }}
-                            {% elif config.trackChanges %}
-                                , "{{ timeColumn }}" as "START_TIME"
-                            {% endif %}
-
-                            {% if not config.isOnlyCurrent %}
-                                , lag("{{ timeColumn }}") over 
-                                    (partition by {{ keyColumns }} 
-                                     order by "{{ timeColumn }}" desc) 
-                                as "END_TIME"
-                            {% endif %}
-
-                            , CASE 
-                                WHEN (row_number() over 
-                                        (partition by {{ keyColumns }} 
-                                         order by "{{ timeColumn }}" desc) = 1) 
-                                THEN TRUE 
-                                ELSE FALSE 
-                            END as "{{currentFlag}}"
-                        {% endif %}
-
-                        {{ sources[0].join }}
-
-                        {% if config.trackChanges and config.isOnlyCurrent == true  %}
-                            
-                            QUALIFY "{{currentFlag}}"
-                        {% endif %}
+            {%- set keyColumns = '"'+keyColumnList | join('", "')+'"' %}
+            {%- set timeColumn = timeColumnList | first %}
+            {%- set dmlColumn = dmlColumnList | first %}
+            {%- set dmlValue = config.deleteValue %}
+            {%- set dtLagNumber = config.lagSpec.get('items') | map(attribute='lagNumber') | first %}
+            {%- set dtLagType = config.lagSpec.get('items') | map(attribute='lagType') | first %}
+            {#- A vew easy variables #}
+            {%- set currentFlag = 'IS_CURRENT' %}
+            {{ stage('Create Dynamic Table') }}
+            CREATE OR REPLACE DYNAMIC TABLE {{ ref_no_link(node.location.name, node.name) }}
+            	LAG = '{{ dtLagNumber }} {{ dtLagType }}'
+            	WAREHOUSE = {{config.whName}}
+            AS
+            	SELECT
+            	{%- for col in includeList %}
+            		{%- set colTransform = sources[0].columns | selectattr('name', 'equalto', col) | map(attribute='transform') | first %}
+            		{%- set colDesc = columns | selectattr('name', 'equalto', col) | map(attribute='description') | first %}
+            		{%- if colTransform == "" %}
+            		{%- set colVal = '"' + col + '"' %}
+            		{%- else %}
+            		{%- set colVal = colTransform %}
+            		{%- endif %}
+            		{%- if not config.trackChanges %}
+            		{{ colVal }} as "{{ col }}"
+            		{%- elif not config.nonDelete %}
+            		{{ colVal }} as "{{ col }}"                
+            		{%- else %}
+            		CASE 
+            			WHEN "{{ dmlColumn }}" = '{{dmlValue}}' 
+            			THEN lag({{colVal}}) over 
+            				(partition by {{ keyColumns }} order by "{{ timeColumn }}" asc) 
+            			ELSE {{colVal}} 
+            		END as "{{ col }}"
+            		{%- endif %}{%- if not loop.last -%}, {% endif %}
+            	{%- endfor %}
+            	{%- if config.trackChanges %}
+            		{%- if config.nonDelete %}
+            		, "{{ dmlColumn }}" as "{{ dmlColumn }}"
+            		{%- endif %}
+            		{%- if config.isOnlyCurrent %}
+            		, "{{ timeColumn }}" as {{ timeColumn }}
+            		{%- elif config.trackChanges %}
+            		, "{{ timeColumn }}" as "START_TIME"
+            		{%- endif %}
+            		{%- if not config.isOnlyCurrent %}
+            		, lag("{{ timeColumn }}") over 
+            			(partition by {{ keyColumns }} 
+            				order by "{{ timeColumn }}" desc) 
+            		as "END_TIME"
+            		{%- endif %}
+            		, CASE 
+            			WHEN (row_number() over 
+            					(partition by {{ keyColumns }} 
+            						order by "{{ timeColumn }}" desc) = 1) 
+            			THEN TRUE 
+            			ELSE FALSE 
+            		END as "{{currentFlag}}"
+            	{%- endif %}
+            	{{ sources[0].join }}
+            	{%- if config.trackChanges and config.isOnlyCurrent == true  %}
+            		QUALIFY "{{currentFlag}}"
+            	{%- endif %}
         run:
           templateString: |-
             {% for test in node.tests if config.testsEnabled %}

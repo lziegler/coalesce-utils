@@ -69,7 +69,7 @@ stepTypes:
           items:
 
           - displayName: Enable Change Tracking
-            attributeName: isChangeTracking
+            attributeName: trackChanges
             type: toggleButton
             default: false
 
@@ -77,38 +77,38 @@ stepTypes:
             attributeName: keyColumn
             type: columnSelector
             isRequired: false
-            enableIf: "{{ config.isChangeTracking }}"
+            enableIf: "{{ config.trackChanges }}"
 
           - displayName: Row Update Timestamp Column
             attributeName: timeColumn
             type: columnSelector
             isRequired: false
-            enableIf: "{{ config.isChangeTracking }}"
+            enableIf: "{{ config.trackChanges }}"
 
           - displayName: Propagate Last Non-Delete
             attributeName: nonDelete
             type: toggleButton
             default: false
-            enableIf: "{{ config.isChangeTracking }}"
+            enableIf: "{{ config.trackChanges }}"
 
           - displayName: DML Identifier Column
             attributeName: dmlColumn
             type: columnSelector
             isRequired: false
-            enableIf: "{{ config.nonDelete and config.isChangeTracking }}"
+            enableIf: "{{ config.nonDelete and config.trackChanges }}"
          
           - displayName: Delete Indentifier Value
             attributeName: deleteValue
             type: textBox
             default: 'D'
             isRequired: false
-            enableIf: "{{ config.nonDelete and config.isChangeTracking }}"
+            enableIf: "{{ config.nonDelete and config.trackChanges }}"
 
           - displayName: Current Values Only
             attributeName: isOnlyCurrent
             type: toggleButton
             default: false
-            enableIf: "{{ config.isChangeTracking }}"
+            enableIf: "{{ config.trackChanges }}"
          
         - groupName: Other Options
           items:
@@ -138,9 +138,9 @@ stepTypes:
             {% set dmlColumnList = columns | selectattr('dmlColumn', 'defined') | map(attribute='name') | list %}
 
             {# The Excluded list of columns depends on certain values #}
-            {% if not config.isChangeTracking %}
+            {% if not config.trackChanges %}
                 {% set excludeList = [] %}
-            {% elif config.isChangeTracking and not config.nonDelete %}
+            {% elif config.trackChanges and not config.nonDelete %}
                 {% set excludeList = (timeColumnList) | unique | list %}
             {% else %}
                 {% set excludeList = (timeColumnList + dmlColumnList) | unique | list %}
@@ -178,7 +178,7 @@ stepTypes:
                                 {% set colVal = colTransform %}
                             {% endif %}
 
-                            {% if not config.isChangeTracking %}
+                            {% if not config.trackChanges %}
                                 {{ colVal }} as "{{ col }}"
                             {% elif not config.nonDelete %}
                                 {{ colVal }} as "{{ col }}"                
@@ -193,7 +193,7 @@ stepTypes:
                         {%- if not loop.last -%}, {% endif %}
                         {% endfor %}
 
-                        {% if config.isChangeTracking %}
+                        {% if config.trackChanges %}
 
                             {% if config.nonDelete %}
                                 , "{{ dmlColumn }}" as "{{ dmlColumn }}"
@@ -201,7 +201,7 @@ stepTypes:
 
                             {% if config.isOnlyCurrent %}
                                 , "{{ timeColumn }}" as {{ timeColumn }}
-                            {% elif config.isChangeTracking %}
+                            {% elif config.trackChanges %}
                                 , "{{ timeColumn }}" as "START_TIME"
                             {% endif %}
 
@@ -223,7 +223,7 @@ stepTypes:
 
                         {{ sources[0].join }}
 
-                        {% if config.isChangeTracking and config.isOnlyCurrent == true  %}
+                        {% if config.trackChanges and config.isOnlyCurrent == true  %}
                             
                             QUALIFY "{{currentFlag}}"
                         {% endif %}

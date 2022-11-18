@@ -12,7 +12,7 @@ steps:
         postSQL: ""
         preSQL: ""
         testsEnabled: true
-        isChangeTracking: false
+        trackChanges: false
         whName: packages
       database: ""
       dependencies: []

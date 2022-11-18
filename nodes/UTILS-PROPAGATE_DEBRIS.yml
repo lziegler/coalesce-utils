@@ -12,7 +12,7 @@ steps:
         preSQL: ""
         nonDelete: true
         testsEnabled: true
-        isChangeTracking: false
+        trackChanges: false
         whName: packages
       database: ""
       dependencies: []

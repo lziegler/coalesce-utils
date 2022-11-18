@@ -3,8 +3,8 @@ steps:
     operation:
       config:
         changeTracking: true
-        dmlDelete: D
-        isCurVal: false
+        deleteValue: D
+        isOnlyCurrent: false
         lagSpec:
           items:
             - lagNumber: 60
@@ -13,7 +13,7 @@ steps:
         postSQL: ""
         preSQL: ""
         testsEnabled: true
-        trackChanges: true
+        isChangeTracking: true
         whName: packages
       database: ""
       dependencies: []

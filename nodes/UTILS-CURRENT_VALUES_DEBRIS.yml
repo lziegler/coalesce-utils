@@ -2,8 +2,8 @@ steps:
   CURRENT_VALUES_DEBRIS-29:
     operation:
       config:
-        dmlDelete: D
-        isCurVal: true
+        deleteValue: D
+        isOnlyCurrent: true
         lagSpec:
           items:
             - lagNumber: 60
@@ -16,7 +16,7 @@ steps:
         postSQL: ""
         preSQL: ""
         testsEnabled: true
-        trackChanges: false
+        isChangeTracking: false
         whName: packages
       database: ""
       dependencies: []
@@ -94,7 +94,7 @@ steps:
               columnCounter: 823
               stepCounter: "29"
             config:
-              colDML: true
+              dmlColumn: true
             dataType: VARCHAR(16777216)
             description: ""
             hashColumns: []

@@ -2,8 +2,8 @@ steps:
   CURRENT_VALUES-22:
     operation:
       config:
-        dmlDelete: D
-        isCurVal: true
+        deleteValue: D
+        isOnlyCurrent: true
         lagSpec:
           items:
             - lagNumber: 60
@@ -12,7 +12,7 @@ steps:
         postSQL: ""
         preSQL: ""
         testsEnabled: true
-        trackChanges: true
+        isChangeTracking: true
         whName: packages
       database: ""
       dependencies: []

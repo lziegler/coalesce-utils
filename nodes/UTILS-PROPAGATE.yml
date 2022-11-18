@@ -2,8 +2,8 @@ steps:
   PROPAGATE-23:
     operation:
       config:
-        dmlDelete: D
-        isCurVal: false
+        deleteValue: D
+        isOnlyCurrent: false
         lagSpec:
           items:
             - lagNumber: 60
@@ -12,7 +12,7 @@ steps:
         postSQL: ""
         preSQL: ""
         testsEnabled: true
-        trackChanges: true
+        isChangeTracking: true
         whName: packages
       database: ""
       dependencies: []
@@ -102,7 +102,7 @@ steps:
               columnCounter: 505
               stepCounter: "23"
             config:
-              colDML: true
+              dmlColumn: true
             dataType: VARCHAR(16777216)
             description: ""
             hashColumns: []

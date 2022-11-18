@@ -69,7 +69,7 @@ stepTypes:
           items:
 
           - displayName: Enable Change Tracking
-            attributeName: trackChanges
+            attributeName: isChangeTracking
             type: toggleButton
             default: false
 
@@ -77,38 +77,38 @@ stepTypes:
             attributeName: keyColumn
             type: columnSelector
             isRequired: false
-            enableIf: "{{ config.trackChanges }}"
+            enableIf: "{{ config.isChangeTracking }}"
 
           - displayName: Row Update Timestamp Column
             attributeName: timeColumn
             type: columnSelector
             isRequired: false
-            enableIf: "{{ config.trackChanges }}"
+            enableIf: "{{ config.isChangeTracking }}"
 
           - displayName: Propagate Last Non-Delete
             attributeName: nonDelete
             type: toggleButton
             default: false
-            enableIf: "{{ config.trackChanges }}"
+            enableIf: "{{ config.isChangeTracking }}"
 
           - displayName: DML Identifier Column
-            attributeName: colDML
+            attributeName: dmlColumn
             type: columnSelector
             isRequired: false
-            enableIf: "{{ config.nonDelete and config.trackChanges }}"
+            enableIf: "{{ config.nonDelete and config.isChangeTracking }}"
          
-          - displayName: DML Delete Indentifier
-            attributeName: dmlDelete
+          - displayName: Delete Indentifier Value
+            attributeName: deleteValue
             type: textBox
             default: 'D'
             isRequired: false
-            enableIf: "{{ config.nonDelete and config.trackChanges }}"
+            enableIf: "{{ config.nonDelete and config.isChangeTracking }}"
 
           - displayName: Current Values Only
-            attributeName: isCurVal
+            attributeName: isOnlyCurrent
             type: toggleButton
             default: false
-            enableIf: "{{ config.trackChanges }}"
+            enableIf: "{{ config.isChangeTracking }}"
          
         - groupName: Other Options
           items:
@@ -135,12 +135,12 @@ stepTypes:
             {% set columnList = columns | map(attribute='name') | list %}
             {% set keyColumnList = columns | selectattr('keyColumn', 'defined') | map(attribute='name') | list %}
             {% set timeColumnList = columns | selectattr('timeColumn', 'defined') | map(attribute='name') | list %}
-            {% set dmlColumnList = columns | selectattr('colDML', 'defined') | map(attribute='name') | list %}
+            {% set dmlColumnList = columns | selectattr('dmlColumn', 'defined') | map(attribute='name') | list %}
 
             {# The Excluded list of columns depends on certain values #}
-            {% if not config.trackChanges %}
+            {% if not config.isChangeTracking %}
                 {% set excludeList = [] %}
-            {% elif config.trackChanges and not config.nonDelete %}
+            {% elif config.isChangeTracking and not config.nonDelete %}
                 {% set excludeList = (timeColumnList) | unique | list %}
             {% else %}
                 {% set excludeList = (timeColumnList + dmlColumnList) | unique | list %}
@@ -152,7 +152,7 @@ stepTypes:
             {% set keyColumns = '"'+keyColumnList | join('", "')+'"' %}
             {% set timeColumn = timeColumnList | first %}
             {% set dmlColumn = dmlColumnList | first %}
-            {% set dmlValue = config.dmlDelete %}
+            {% set dmlValue = config.deleteValue %}
             {% set dtLagNumber = config.lagSpec.get('items') | map(attribute='lagNumber') | first %}
             {% set dtLagType = config.lagSpec.get('items') | map(attribute='lagType') | first %}
 
@@ -178,7 +178,7 @@ stepTypes:
                                 {% set colVal = colTransform %}
                             {% endif %}
 
-                            {% if not config.trackChanges %}
+                            {% if not config.isChangeTracking %}
                                 {{ colVal }} as "{{ col }}"
                             {% elif not config.nonDelete %}
                                 {{ colVal }} as "{{ col }}"                
@@ -193,19 +193,19 @@ stepTypes:
                         {%- if not loop.last -%}, {% endif %}
                         {% endfor %}
 
-                        {% if config.trackChanges %}
+                        {% if config.isChangeTracking %}
 
                             {% if config.nonDelete %}
                                 , "{{ dmlColumn }}" as "{{ dmlColumn }}"
                             {% endif %}
 
-                            {% if config.isCurVal %}
+                            {% if config.isOnlyCurrent %}
                                 , "{{ timeColumn }}" as {{ timeColumn }}
-                            {% elif config.trackChanges %}
+                            {% elif config.isChangeTracking %}
                                 , "{{ timeColumn }}" as "START_TIME"
                             {% endif %}
 
-                            {% if not config.isCurVal %}
+                            {% if not config.isOnlyCurrent %}
                                 , lag("{{ timeColumn }}") over 
                                     (partition by {{ keyColumns }} 
                                      order by "{{ timeColumn }}" desc) 
@@ -223,7 +223,7 @@ stepTypes:
 
                         {{ sources[0].join }}
 
-                        {% if config.trackChanges and config.isCurVal == true  %}
+                        {% if config.isChangeTracking and config.isOnlyCurrent == true  %}
                             
                             QUALIFY "{{currentFlag}}"
                         {% endif %}

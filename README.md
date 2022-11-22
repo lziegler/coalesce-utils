@@ -7,7 +7,8 @@ They are installed using the [`coa` CLI](https://docs.coalesce.io/docs/cli-overv
 Follow [these](https://docs.coalesce.io/docs/cli-setup) instructions for the installation and setup of `coa`.
 
 # Install the `coalesce-utils` package.
-I am using a profile called `test` in my `~/.coa/config` file for this example.
+> NOTE: Installing packages via the `coa` CLI is in beta and not yet available.
+Request the package from Coalesce support.
 
 Install the package using the following command:
 
@@ -36,3 +37,4 @@ coa package add https://github.com/coalesceio/coalesce-utils
 ```
 # Contents of the `coalesce-utils` package
 ## Dynamic Tables
+Coming Soon.

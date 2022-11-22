@@ -42,22 +42,31 @@ steps:
               having
                   cnt > 1;
         columns:
-          - columnReference:
-              columnCounter: 463
+          - acceptedValues:
+              strictMatch: true
+              values: []
+            appliedColumnTests: {}
+            columnReference:
+              columnCounter: 1071
               stepCounter: "22"
             config:
               keyColumn: true
             dataType: NUMBER(38,0)
+            defaultValue: ""
             description: ""
             hashColumns: []
-            hashDetails: null
+            keyColumnType: None
             name: CC_CALL_CENTER_ID
             nullable: true
+            primaryKey: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 425
-                    stepCounter: "19"
+                  - columnCounter: 257
+                    stepCounter: "13"
                 transform: ""
+            systemColumnType: None
+            type: Column
+            uniqueKey: false
           - columnReference:
               columnCounter: 464
               stepCounter: "22"
@@ -119,13 +128,15 @@ steps:
         cteString: ""
         enabledColumnTestIDs: []
         sourceMapping:
-          - customSQL:
+          - aliases:
+              DT_CALL_CENTER: "33"
+            customSQL:
               customSQL: ""
             dependencies:
-              - locationName: SRC
-                nodeName: STG_CALL_CENTER
+              - locationName: UTILS
+                nodeName: DT_CALL_CENTER
             join:
-              joinCondition: FROM {{ ref('SRC', 'STG_CALL_CENTER') }} "STG_CALL_CENTER"
+              joinCondition: FROM {{ ref('UTILS', 'DT_CALL_CENTER') }} "DT_CALL_CENTER"
             name: CURRENT_VALUES
             noLinkRefs: []
       name: CURRENT_VALUES

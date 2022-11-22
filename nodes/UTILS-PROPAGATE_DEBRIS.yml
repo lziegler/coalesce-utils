@@ -8,9 +8,9 @@ steps:
           items:
             - lagNumber: 60
               lagType: Minutes
+        nonDelete: true
         postSQL: ""
         preSQL: ""
-        nonDelete: true
         testsEnabled: true
         trackChanges: false
         whName: packages
@@ -105,13 +105,15 @@ steps:
         cteString: ""
         enabledColumnTestIDs: []
         sourceMapping:
-          - customSQL:
+          - aliases:
+              DT_CALL_CENTER: "33"
+            customSQL:
               customSQL: ""
             dependencies:
-              - locationName: SRC
-                nodeName: STG_CALL_CENTER
+              - locationName: UTILS
+                nodeName: DT_CALL_CENTER
             join:
-              joinCondition: FROM {{ ref('SRC', 'STG_CALL_CENTER') }} "STG_CALL_CENTER"
+              joinCondition: FROM {{ ref('UTILS', 'DT_CALL_CENTER') }} "DT_CALL_CENTER"
             name: PROPAGATE_DEBRIS
             noLinkRefs: []
       name: PROPAGATE_DEBRIS

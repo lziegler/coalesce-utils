@@ -200,10 +200,14 @@ stepTypes:
             		, "{{ timeColumn }}" as "START_TIME"
             		{%- endif %}
             		{%- if not config.isOnlyCurrent %}
-            		, lag("{{ timeColumn }}") over 
-            			(partition by {{ keyColumns }} 
-            				order by "{{ timeColumn }}" desc) 
-            		as "END_TIME"
+            		, ifnull(
+            			timestampadd(
+            				'millisecond',-1,lag("{{ timeColumn }}") over 
+            					(partition by {{ keyColumns }} 
+            					order by "{{ timeColumn }}" desc)
+            			),
+            			to_timestamp('9999-12-31 23:59:59.999')
+            		) as "END_TIME"
             		{%- endif %}
             		, CASE 
             			WHEN (row_number() over 

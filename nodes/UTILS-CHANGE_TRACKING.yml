@@ -122,13 +122,15 @@ steps:
         cteString: ""
         enabledColumnTestIDs: []
         sourceMapping:
-          - customSQL:
+          - aliases:
+              DT_CALL_CENTER: "33"
+            customSQL:
               customSQL: ""
             dependencies:
-              - locationName: SRC
-                nodeName: STG_CALL_CENTER
+              - locationName: UTILS
+                nodeName: DT_CALL_CENTER
             join:
-              joinCondition: FROM {{ ref('SRC', 'STG_CALL_CENTER') }} "STG_CALL_CENTER"
+              joinCondition: FROM {{ ref('UTILS', 'DT_CALL_CENTER') }} "DT_CALL_CENTER"
             name: CHANGE_TRACKING
             noLinkRefs: []
       name: CHANGE_TRACKING

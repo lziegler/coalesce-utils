@@ -1,12 +1,19 @@
 steps:
-  STG_CALL_CENTER-19:
+  DT_CALL_CENTER-33:
     operation:
       config:
-        insertStrategy: INSERT
+        deleteValue: D
+        isOnlyCurrent: false
+        lagSpec:
+          items:
+            - lagNumber: 60
+              lagType: Minutes
+        nonDelete: false
         postSQL: ""
         preSQL: ""
         testsEnabled: true
-        truncateBefore: true
+        trackChanges: false
+        whName: compute_wh
       database: ""
       dependencies: []
       deployEnabled: true
@@ -14,25 +21,14 @@ steps:
       isDataVault: false
       isMultisource: false
       locationID: ""
-      locationName: SRC
+      locationName: UTILS
       materializationType: table
       metadata:
-        appliedNodeTests:
-          - continueOnFailure: true
-            description: ""
-            name: Unknown DML Types
-            runOrder: After
-            templateString: |-
-              select
-                  *
-              from 
-                  {{this}}
-              where 
-                  cc_dml_type not in ('I','U','D')
+        appliedNodeTests: []
         columns:
           - columnReference:
-              columnCounter: 425
-              stepCounter: "19"
+              columnCounter: 1043
+              stepCounter: "33"
             dataType: NUMBER(38,0)
             description: ""
             hashColumns: []
@@ -45,8 +41,8 @@ steps:
                     stepCounter: "13"
                 transform: ""
           - columnReference:
-              columnCounter: 426
-              stepCounter: "19"
+              columnCounter: 1044
+              stepCounter: "33"
             dataType: VARCHAR(16777216)
             description: ""
             hashColumns: []
@@ -59,8 +55,8 @@ steps:
                     stepCounter: "13"
                 transform: ""
           - columnReference:
-              columnCounter: 427
-              stepCounter: "19"
+              columnCounter: 1045
+              stepCounter: "33"
             dataType: VARCHAR(16777216)
             description: ""
             hashColumns: []
@@ -73,8 +69,8 @@ steps:
                     stepCounter: "13"
                 transform: ""
           - columnReference:
-              columnCounter: 451
-              stepCounter: "19"
+              columnCounter: 1069
+              stepCounter: "33"
             dataType: DATE
             description: ""
             hashColumns: []
@@ -85,10 +81,10 @@ steps:
               - columnReferences:
                   - columnCounter: 283
                     stepCounter: "13"
-                transform: ""
+                transform: TO_TIMESTAMP("CALL_CENTER"."CC_UPDATE_TS")
           - columnReference:
-              columnCounter: 452
-              stepCounter: "19"
+              columnCounter: 1070
+              stepCounter: "33"
             dataType: VARCHAR(16777216)
             description: ""
             hashColumns: []
@@ -103,18 +99,20 @@ steps:
         cteString: ""
         enabledColumnTestIDs: []
         sourceMapping:
-          - customSQL:
+          - aliases:
+              CALL_CENTER: "13"
+            customSQL:
               customSQL: ""
             dependencies:
               - locationName: SRC
                 nodeName: CALL_CENTER
             join:
               joinCondition: FROM {{ ref('SRC', 'CALL_CENTER') }} "CALL_CENTER"
-            name: STG_CALL_CENTER
+            name: DT_CALL_CENTER
             noLinkRefs: []
-      name: STG_CALL_CENTER
+      name: DT_CALL_CENTER
       overrideSQL: false
       schema: ""
-      sqlType: Stage
+      sqlType: "6"
       type: sql
-    stepCounter: "19"
+    stepCounter: "33"

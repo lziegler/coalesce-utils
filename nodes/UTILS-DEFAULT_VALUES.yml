@@ -13,7 +13,7 @@ steps:
         preSQL: ""
         testsEnabled: true
         trackChanges: false
-        whName: packages
+        whName: packages_wh
       database: ""
       dependencies: []
       deployEnabled: true

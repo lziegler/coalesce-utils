@@ -13,7 +13,7 @@ steps:
         preSQL: ""
         testsEnabled: true
         trackChanges: false
-        whName: compute_wh
+        whName: packages_wh
       database: ""
       dependencies: []
       deployEnabled: true
@@ -71,7 +71,7 @@ steps:
           - columnReference:
               columnCounter: 1069
               stepCounter: "33"
-            dataType: DATE
+            dataType: TIMESTAMP
             description: ""
             hashColumns: []
             hashDetails: null

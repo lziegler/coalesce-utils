@@ -1,4 +1,4 @@
-defaultStorageMapping: SRC
+defaultStorageMapping: UTILS
 jobs: {}
 locations:
   SRC:

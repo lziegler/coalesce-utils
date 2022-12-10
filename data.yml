@@ -3,12 +3,12 @@ jobs: {}
 locations:
   SRC:
     mappingDefinitions:
-      "2":
+      "3":
         database: PACKAGES
         schema: RETAIL
   UTILS:
     mappingDefinitions:
-      "2":
+      "3":
         database: PACKAGES
         schema: UTILS_TEST
 macros: {}

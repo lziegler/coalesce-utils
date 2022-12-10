@@ -18,19 +18,19 @@ jobs:
           arguments: plan
 
       - name: Test Deploy
-        uses: coalesceio/coalesce-action@main
+        uses: coalesceio/coalesce-action@v0.3.0
         with:
           coa-config: ${{secrets.COA_CONFIG}}
           arguments: deploy
 
       - name: Test Redeploy
-        uses: coalesceio/coalesce-action@main
+        uses: coalesceio/coalesce-action@v0.3.0
         with:
           coa-config: ${{secrets.COA_CONFIG}}
           arguments: deploy
 
       - name: Test Refresh
-        uses: coalesceio/coalesce-action@main
+        uses: coalesceio/coalesce-action@v0.3.0
         with:
           coa-config: ${{secrets.COA_CONFIG}}
           arguments: refresh

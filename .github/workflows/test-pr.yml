@@ -1,10 +1,11 @@
+# Test the DAG
 name: Test deploy and refresh
 
 on:
   pull_request
 
 jobs:
-  test:
+  test-deploy:
     runs-on: ubuntu-latest
     
     steps:

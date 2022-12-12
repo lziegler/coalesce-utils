@@ -1,4 +1,3 @@
-# Test the DAG with Deploy and Refresh
 name: Test deploy and refresh
 
 on:

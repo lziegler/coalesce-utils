@@ -1,0 +1,36 @@
+name: Test deploy and refresh
+
+on:
+  pull_request
+
+jobs:
+  test-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout repository
+
+      - name: Test Plan
+        uses: coalesceio/coalesce-action@develop
+        with:
+          coa-config: ${{secrets.COA_CONFIG}}
+          arguments: plan
+
+      - name: Test Deploy
+        uses: coalesceio/coalesce-action@develop
+        with:
+          coa-config: ${{secrets.COA_CONFIG}}
+          arguments: deploy
+
+      - name: Test Redeploy
+        uses: coalesceio/coalesce-action@develop
+        with:
+          coa-config: ${{secrets.COA_CONFIG}}
+          arguments: deploy
+
+      - name: Test Refresh
+        uses: coalesceio/coalesce-action@develop
+        with:
+          coa-config: ${{secrets.COA_CONFIG}}
+          arguments: refresh

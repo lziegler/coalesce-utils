@@ -12,8 +12,8 @@ steps:
         postSQL: ""
         preSQL: ""
         testsEnabled: true
-        trackChanges: true
-        whName: packages
+        trackChanges: false
+        whName: packages_wh
       database: ""
       dependencies: []
       deployEnabled: true
@@ -27,7 +27,7 @@ steps:
         appliedNodeTests: []
         columns:
           - columnReference:
-              columnCounter: 698
+              columnCounter: 1083
               stepCounter: "27"
             config:
               keyColumn: true
@@ -35,71 +35,89 @@ steps:
             description: ""
             hashColumns: []
             hashDetails: null
+            keyColumnType: None
             name: CC_CALL_CENTER_ID
             nullable: true
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 425
-                    stepCounter: "19"
+                  - columnCounter: 1043
+                    stepCounter: "33"
                 transform: ""
+            systemColumnType: None
+            type: Column
           - columnReference:
-              columnCounter: 699
+              columnCounter: 1084
               stepCounter: "27"
+            config: {}
             dataType: VARCHAR(16777216)
             description: ""
             hashColumns: []
             hashDetails: null
+            keyColumnType: None
             name: CC_NAME
             nullable: true
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 426
-                    stepCounter: "19"
+                  - columnCounter: 1044
+                    stepCounter: "33"
                 transform: ""
+            systemColumnType: None
+            type: Column
           - columnReference:
-              columnCounter: 700
+              columnCounter: 1085
               stepCounter: "27"
+            config: {}
             dataType: VARCHAR(16777216)
             description: ""
             hashColumns: []
             hashDetails: null
+            keyColumnType: None
             name: CC_CLASS
             nullable: true
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 427
-                    stepCounter: "19"
+                  - columnCounter: 1045
+                    stepCounter: "33"
                 transform: ""
+            systemColumnType: None
+            type: Column
           - columnReference:
-              columnCounter: 701
+              columnCounter: 1086
               stepCounter: "27"
             config:
               timeColumn: true
-            dataType: DATE
+            dataType: TIMESTAMP
             description: ""
             hashColumns: []
             hashDetails: null
+            keyColumnType: None
             name: CC_UPDATE_TS
             nullable: true
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 451
-                    stepCounter: "19"
+                  - columnCounter: 1069
+                    stepCounter: "33"
                 transform: ""
+            systemColumnType: None
+            type: Column
           - columnReference:
-              columnCounter: 702
+              columnCounter: 1087
               stepCounter: "27"
+            config: {}
             dataType: VARCHAR(16777216)
             description: ""
             hashColumns: []
             hashDetails: null
+            keyColumnType: None
             name: CC_DML_TYPE
             nullable: true
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 452
-                    stepCounter: "19"
+                  - columnCounter: 1070
+                    stepCounter: "33"
                 transform: ""
+            systemColumnType: None
+            type: Column
         cteString: ""
         enabledColumnTestIDs: []
         sourceMapping:

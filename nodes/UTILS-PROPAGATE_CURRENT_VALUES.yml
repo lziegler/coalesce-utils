@@ -95,8 +95,8 @@ steps:
             nullable: true
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 647
-                    stepCounter: "26"
+                  - columnCounter: 1045
+                    stepCounter: "33"
                 transform: ""
           - columnReference:
               columnCounter: 547
@@ -111,8 +111,8 @@ steps:
             nullable: true
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 648
-                    stepCounter: "26"
+                  - columnCounter: 1069
+                    stepCounter: "33"
                 transform: ""
           - columnReference:
               columnCounter: 548

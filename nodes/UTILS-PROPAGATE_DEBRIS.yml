@@ -39,8 +39,8 @@ steps:
             nullable: true
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 257
-                    stepCounter: "13"
+                  - columnCounter: 1043
+                    stepCounter: "33"
                 transform: ""
           - columnReference:
               columnCounter: 757
@@ -53,8 +53,8 @@ steps:
             nullable: true
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 258
-                    stepCounter: "13"
+                  - columnCounter: 1044
+                    stepCounter: "33"
                 transform: ""
           - columnReference:
               columnCounter: 758
@@ -67,8 +67,8 @@ steps:
             nullable: true
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 259
-                    stepCounter: "13"
+                  - columnCounter: 1045
+                    stepCounter: "33"
                 transform: ""
           - columnReference:
               columnCounter: 759
@@ -83,8 +83,8 @@ steps:
             nullable: true
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 283
-                    stepCounter: "13"
+                  - columnCounter: 1069
+                    stepCounter: "33"
                 transform: ""
           - columnReference:
               columnCounter: 760
@@ -99,8 +99,8 @@ steps:
             nullable: true
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 284
-                    stepCounter: "13"
+                  - columnCounter: 1070
+                    stepCounter: "33"
                 transform: ""
         cteString: ""
         enabledColumnTestIDs: []

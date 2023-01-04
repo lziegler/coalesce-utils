@@ -51,8 +51,8 @@ steps:
             nullable: true
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 645
-                    stepCounter: "26"
+                  - columnCounter: 1043
+                    stepCounter: "33"
                 transform: ""
           - columnReference:
               columnCounter: 502
@@ -65,8 +65,8 @@ steps:
             nullable: true
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 646
-                    stepCounter: "26"
+                  - columnCounter: 1044
+                    stepCounter: "33"
                 transform: ""
           - columnReference:
               columnCounter: 503
@@ -111,8 +111,8 @@ steps:
             nullable: true
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 548
-                    stepCounter: "24"
+                  - columnCounter: 1070
+                    stepCounter: "33"
                 transform: ""
         cteString: ""
         enabledColumnTestIDs: []
